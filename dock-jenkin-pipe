@@ -25,16 +25,16 @@ stages{
     stage('Deploy'){
         steps{
             echo 'deploying on another server'
-            sh 'sudo docker stop nodetodoapp || true'
-            sh 'sudo docker rm nodetodoapp || true'
-            sh 'sudo docker run -d --name nodetodoapp -p 80:80  anantshindalkar/rtaskt:latest'
+            sh 'sudo docker stop rtaskt || true'
+            sh 'sudo docker rm rtaskt || true'
+            sh 'sudo docker run -d --name rtaskt -p 80:80  anantshindalkar/rtaskt:latest'
             sh '''
-            ssh -i Ubuntudemo.pem -o StrictHostKeyChecking=no ubuntu@44.211.144.201 <<EOF
+            ssh -i node-key.pem -o StrictHostKeyChecking=no ubuntu@65.1.100.145 <<EOF
             sudo docker login -u anantshindalkar -p dckr_pat_BDzFHeuPUg_cntcoYVJfJXsfQSM
             sudo docker pull anantshindalkar/rtaskt:latest
-            sudo docker stop nodetodoapp || true
-            sudo docker rm nodetodoapp || true 
-            sudo docker run -d --name nodetodoapp -p 8000:8000 anantshindalkar/rtaskt:latest
+            sudo docker stop rtaskt || true
+            sudo docker rm rtaskt || true 
+            sudo docker run -d --name rtaskt -p 8000:8000 anantshindalkar/rtaskt:latest
             '''
         }
     }
