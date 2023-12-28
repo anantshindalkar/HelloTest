@@ -1,0 +1,41 @@
+stages{
+    stage('Checkout'){
+        steps{
+            git url: 'https://github.com/anantshindalkar/react-tasks.git', branch: 'main'
+        }
+    }
+    stage('Build'){
+        steps{
+            sh 'sudo docker build . -t anantshindalkar/rtaskt:latest'
+        }
+    }
+    stage('Test image') {
+        steps {
+            echo 'testing...'
+            sh 'sudo docker inspect --type=image anantshindalkar/rtaskt:latest '
+        }
+    }
+    
+    stage('Push'){
+        steps{
+    	     sh "sudo docker login -u anantshindalkar -p dckr_pat_BDzFHeuPUg_cntcoYVJfJXsfQSM"
+             sh 'sudo docker push anantshindalkar/rtaskt:latest'
+        }
+    }  
+    stage('Deploy'){
+        steps{
+            echo 'deploying on another server'
+            sh 'sudo docker stop nodetodoapp || true'
+            sh 'sudo docker rm nodetodoapp || true'
+            sh 'sudo docker run -d --name nodetodoapp -p 80:80  anantshindalkar/rtaskt:latest'
+            sh '''
+            ssh -i Ubuntudemo.pem -o StrictHostKeyChecking=no ubuntu@44.211.144.201 <<EOF
+            sudo docker login -u anantshindalkar -p dckr_pat_BDzFHeuPUg_cntcoYVJfJXsfQSM
+            sudo docker pull anantshindalkar/rtaskt:latest
+            sudo docker stop nodetodoapp || true
+            sudo docker rm nodetodoapp || true 
+            sudo docker run -d --name nodetodoapp -p 8000:8000 anantshindalkar/rtaskt:latest
+            '''
+        }
+    }
+}
