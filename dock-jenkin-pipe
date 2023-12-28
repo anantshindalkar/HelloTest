@@ -1,4 +1,6 @@
-stages{
+pipeline {
+    agent any
+    stages{
     stage('Checkout'){
         steps{
             git url: 'https://github.com/anantshindalkar/react-tasks.git', branch: 'main'
@@ -6,36 +8,36 @@ stages{
     }
     stage('Build'){
         steps{
-            sh 'sudo docker build . -t anantshindalkar/rtaskt:latest'
+            sh 'docker build . -t anantshindalkar/rtaskt:latest'
         }
     }
     stage('Test image') {
         steps {
             echo 'testing...'
-            sh 'sudo docker inspect --type=image anantshindalkar/rtaskt:latest '
+            sh 'docker inspect --type=image anantshindalkar/rtaskt:latest '
         }
     }
-    
     stage('Push'){
         steps{
-    	     sh "sudo docker login -u anantshindalkar -p dckr_pat_BDzFHeuPUg_cntcoYVJfJXsfQSM"
-             sh 'sudo docker push anantshindalkar/rtaskt:latest'
+    	     sh "docker login -u anantshindalkar -p dckr_pat_BDzFHeuPUg_cntcoYVJfJXsfQSM"
+             sh 'docker push anantshindalkar/rtaskt:latest'
         }
     }  
     stage('Deploy'){
         steps{
             echo 'deploying on another server'
-            sh 'sudo docker stop rtaskt || true'
-            sh 'sudo docker rm rtaskt || true'
-            sh 'sudo docker run -d --name rtaskt -p 80:80  anantshindalkar/rtaskt:latest'
+            sh 'docker stop rtaskt || true'
+            sh 'docker rm rtaskt || true'
+            sh 'docker run -d --name rtaskt -p 80:80  anantshindalkar/rtaskt:latest'
             sh '''
             ssh -i node-key.pem -o StrictHostKeyChecking=no ubuntu@65.1.100.145 <<EOF
-            sudo docker login -u anantshindalkar -p dckr_pat_BDzFHeuPUg_cntcoYVJfJXsfQSM
-            sudo docker pull anantshindalkar/rtaskt:latest
-            sudo docker stop rtaskt || true
-            sudo docker rm rtaskt || true 
-            sudo docker run -d --name rtaskt -p 8000:8000 anantshindalkar/rtaskt:latest
+            docker login -u anantshindalkar -p dckr_pat_BDzFHeuPUg_cntcoYVJfJXsfQSM
+            docker pull anantshindalkar/rtaskt:latest
+            docker stop rtaskt || true
+            docker rm rtaskt || true 
+            docker run -d --name rtaskt -p 8000:80 anantshindalkar/rtaskt:latest
             '''
         }
     }
+}
 }
