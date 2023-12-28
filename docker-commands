@@ -1,3 +1,10 @@
+=============================================
+sudo su - 
+	usermod -aG docker jenkins
+	usermod -aG docker ubuntu
+	systemctl restart docker
+
+================================================
 Pull an Image from Docker Hub:
 
 docker pull <image_name>
