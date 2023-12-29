@@ -1,0 +1,25 @@
+sudo curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg |sudo apt-key add
+echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+apt-get update
+apt-get install -y kubelet kubeadm kubectl kubernetes-cni
+
+
+kubeadm init
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/k8s-old-manifests/kube-flannel-rbac.yml
+
+kubeadm token create --print-join-command
+
+kubeadm join 172.31.47.167:6443 --token as1ln2.h0omu32b5l4x6k1s --discovery-token-ca-cert-hash sha256:e9257075e40581372d5b94a6e8fe611509003e831180fcdddb5e1299e16668d8
+
+kubectl get nodes
+
+
+
+kubeadm join 172.31.38.88:6443 --token 12at2w.wumtdrd2h78hgbho \
+        --discovery-token-ca-cert-hash sha256:9233cc17250a75ce68a355b675308f8191fd106faef3b853d36abf02dc57b5d3
+
+
