@@ -23,3 +23,88 @@ kubeadm join 172.31.38.88:6443 --token 12at2w.wumtdrd2h78hgbho \
         --discovery-token-ca-cert-hash sha256:9233cc17250a75ce68a355b675308f8191fd106faef3b853d36abf02dc57b5d3
 
 
+kubectl version:
+
+Display the Kubernetes client and server version information.
+
+kubectl version
+
+kubectl get:
+
+Retrieve information about resources (pods, services, deployments, etc.).
+
+kubectl get pods
+kubectl get services
+
+kubectl describe:
+
+Show detailed information about a resource.
+
+kubectl describe pod <pod_name>
+
+kubectl create:
+
+Create a resource from a file or from command-line options.
+
+kubectl create -f <yaml_file>
+
+kubectl apply:
+
+Apply changes to a resource, updating it if it exists or creating it if it doesn't.
+
+kubectl apply -f <yaml_file>
+
+kubectl delete:
+
+Delete a resource.
+
+kubectl delete pod <pod_name>
+
+kubectl exec:
+
+Execute a command in a running container.
+
+kubectl exec -it <pod_name> -- /bin/bash
+
+kubectl logs:
+
+Print the logs from a container in a pod.
+
+kubectl logs <pod_name>
+
+kubectl scale:
+
+Scale the number of replicas in a deployment.
+
+kubectl scale deployment <deployment_name> --replicas=3
+
+kubectl rollout:
+
+Manage rollouts of an application.
+
+kubectl rollout status deployment/<deployment_name>
+kubectl port-forward:
+
+Forward local ports to a pod.
+
+kubectl port-forward <pod_name> 8080:80
+
+kubectl get events:
+
+Display events related to the cluster.
+
+kubectl get events
+
+kubectl config:
+
+Manage kubeconfig files.
+
+kubectl config view
+kubectl cluster-info:
+
+Display cluster information.
+
+kubectl cluster-info
+
+kubectl apply -f -:
+
