@@ -20,21 +20,98 @@ Ports for the Worker Node(s)
 3. TCP 22          → For remote access with ssh
 4. UDP 8472        → Cluster-Wide Network Comm. — Flannel VXLAN
 
+===============================================================================================================
+
+
+sudo hostnamectl set-hostname master
+sudo apt-get update
+sudo apt-get install -y apt-transport-https gnupg2
+
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+echo “deb https://apt.kubernetes.io/ kubernetes-xenial main” | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+
+sudo apt-get update
+
+sudo apt-get install -y kubectl kubeadm kubelet kubernetes-cni docker.io
+
+sudo systemctl start docker
+sudo systemctl enable docker
+
+sudo usermod -aG docker $USER
+newgrp docker
+
+cat << EOF | sudo tee /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+EOF
+sudo sysctl --system
+
+sudo hostnamectl set-hostname worker
+
+sudo apt-get update
+
+sudo apt-get install -y apt-transport-https gnupg2
+
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+echo “deb https://apt.kubernetes.io/ kubernetes-xenial main” | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+
+sudo apt-get update
+sudo apt-get install -y kubectl kubeadm kubelet kubernetes-cni docker.io
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo usermod -aG docker $USER
+newgrp docker
+
+cat << EOF | sudo tee /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+EOF
+sudo sysctl — system
+
+Setting Up Master Node for Kubernetes
+
+sudo kubeadm config images pull
+echo ‘{“exec-opts”: [“native.cgroupdriver=systemd”]}’ | sudo tee /etc/docker/daemon.json
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+sudo systemctl restart kubelet
+
+sudo kubeadm init — apiserver-advertise-address=172.31.38.88 — pod-network-cidr=10.244.0.0/16 # Use your master node’s private IP
+
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+kubectl apply -f https://github.com/coreos/flannel/raw/master/Documentation/kube-flannel.yml
+
+kubectl get nodes
+
+Adding the Worker Node to the Cluster
+echo ‘{“exec-opts”: [“native.cgroupdriver=systemd”]}’ | sudo tee /etc/docker/daemon.json
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+sudo systemctl restart kubelet
+
+sudo kubeadm join 172.31.21.161:6443 — token 7iwh5m.v8pqnnhjl18l81xh — discovery-token-ca-cert-hash sha256:f7dc94b7d1c86d348074aadd789800268fa516ccf1d43e24d4b9202986d69064
+
+kubectl get nodes
+
+kubectl get nodes -o wide
+
+kubectl run nginx-server — image=nginx — port=80
+kubectl get pods -o wide
+kubectl get service -o wide
+
+kubectl delete service nginx-server
+kubectl delete pods nginx-server
+
+kubectl cordon worker
+kubectl drain worker — ignore-daemonsets — delete-emptydir-data
+kubectl delete node worker
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+==============================================================================================================================================
 
 sudo curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg |sudo apt-key add
 echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
