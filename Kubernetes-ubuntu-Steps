@@ -24,18 +24,37 @@ Ports for the Worker Node(s)
 
 
 sudo hostnamectl set-hostname master
-sudo apt-get update
-sudo apt-get install -y apt-transport-https gnupg2
 
-curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-echo “ deb https://apt.kubernetes.io/kubernetes-xenial main ” | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
 
-sudo apt-get update
+apt-get update
+apt-get install -y apt-transport-https ca-certificates curl
 
-sudo apt-get install -y kubectl kubeadm kubelet kubernetes-cni
+# Download the Google Cloud public signing key:
 
-sudo systemctl start docker
-sudo systemctl enable docker
+curl -fsSL https://dl.k8s.io/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-archive-keyring.gpg
+
+# Add the Kubernetes apt repository:
+
+echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+
+# Update apt package index, install kubelet, kubeadm and kubectl, and pin their version:
+
+apt-get update
+apt-get install -y kubelet kubeadm kubectl
+
+# apt-mark hold will prevent the package from being automatically upgraded or removed.
+
+apt-mark hold kubelet kubeadm kubectl
+
+# Enable and start kubelet service
+
+systemctl daemon-reload
+systemctl start kubelet
+systemctl enable kubelet.service
+
+
+
+
 
 sudo usermod -aG docker $USER
 newgrp docker
